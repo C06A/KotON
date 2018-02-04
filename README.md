@@ -3,7 +3,7 @@ Kotlin DSL to create a JSON document
 
 In order to use this library include in your `build.gradle` file follow
 
-```$xslt
+```$groovy
 repositories {
     mavenCentral()
     maven {
@@ -17,3 +17,9 @@ dependencies {
 
 ```
 
+This library was inspired by [KTON](https://github.com/Jire/KTON). Unlike later
+KotON doesn't allocate both array and map for each instance. Instead it create
+instances of different classes to hold different type of data.
+
+Also KotON provides the toJson() method to convert the whole structure into valid
+JSON string.
