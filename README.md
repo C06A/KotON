@@ -1,12 +1,14 @@
 # KotON
-Kotlin DSL to create a JSON document
+"**Kot**lin **O**bject **N**otation" (Pronounced like "***cotton***") is Kotlin DSL to create a JSON document
+
 
 [![license](https://img.shields.io/github/license/C06A/KotON.svg)](https://github.com/C06A/KotON/blob/master/LICENSE)
 [![Download Latest](https://img.shields.io/badge/download-1.0--SNAPSHOT-yellow.svg)](https://raw.githubusercontent.com/C06A/KotON/artifactiry/com/helpchoice/kotlin/koton/1.0-SNAPSHOT/koton-1.0-SNAPSHOT.jar)
 
 In order to use this library include in your `build.gradle` file follow
 
-```$groovy
+### Gradle
+```groovy
 repositories {
     mavenCentral()
     maven {
@@ -19,6 +21,16 @@ dependencies {
 }
 
 ```
+
+### Maven
+```xml
+<dependency>
+    <groupId>com.helpchoice.kotlin</groupId>
+    <artifactId>koton</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+```
+
 
 This library was inspired by [KTON](https://github.com/Jire/KTON). Unlike later
 KotON doesn't allocate both array and map for each instance. Instead it create
@@ -46,7 +58,7 @@ Same function taking `String` parameter get represented in JSON as double-quoted
 
 For example:
 
-```$Kotlin
+```Kotlin
 kotON(42)() == 42
 kotON(42).toJson() == "42"
 
@@ -66,7 +78,7 @@ kotON(true).toJson() == "\"any text\""
 In order to create the array object call the function `kotON(...)` with elements describing lambdas
 separated with commas.
 
-```$Kotlin
+```Kotlin
 kotON(
     { "start" to 10; "stop" to 100; "step" to 10 },
     {
@@ -95,7 +107,7 @@ Each element inside lambda could be one of:
 
 all these elements can appear in any order. For example:
 
-```$Kotlin
+```Kotlin
 kotON {
   "number" to 25
   "text" to "The text content"
@@ -112,4 +124,6 @@ kotON {
     { "validate" to false }
   ]
 }
-``
+```
+
+For other examples see Unit Tests.
