@@ -1,5 +1,7 @@
 package com.helpchoice.kotlin.koton
 
+import java.io.*
+
 /**
  * This was inspired by project https://github.com/Jire/KTON.
  *
@@ -10,8 +12,13 @@ package com.helpchoice.kotlin.koton
  * Also I added toJson() function to convert the Object into (you guessed it) JSON.
  */
 open class KotON() {
-    open fun toJson(): String {
-        return "{}"
+    open fun toJson(writer: Writer): Writer {
+        writer.write("{}")
+        return writer
+    }
+
+    fun toJson(): String {
+        return toJson(StringWriter()).toString()
     }
 
     open operator fun get(key: String): KotON {
@@ -34,11 +41,13 @@ open class KotON() {
 }
 
 data class KotONVal<out T>(val value: T): KotON() {
-    override fun toJson(): String {
-        return when(value) {
-            is String -> "\"$value\""
-            else -> value.toString()
-        }
+    override fun toJson(writer: Writer): Writer {
+        writer.write(
+                when (value) {
+                    is String -> "\"$value\""
+                    else -> value.toString()
+                })
+        return writer
     }
 
     override operator fun invoke(): Any? {
@@ -47,10 +56,12 @@ data class KotONVal<out T>(val value: T): KotON() {
 }
 
 data class KotONArray(val value: ArrayList<KotON> = ArrayList()): KotON() {
-    override fun toJson(): String {
-        return value.map {
-            it.toJson()
-        }.joinToString(prefix = "[", postfix = "]")
+    override fun toJson(writer: Writer): Writer {
+        value.joinTo(writer, prefix = "[", postfix = "]") {
+            it.toJson(writer)
+            ""
+        }
+        return writer
     }
 
     operator fun plus(body: KotONBuilder.() -> Any): KotONArray {
@@ -64,9 +75,11 @@ data class KotONArray(val value: ArrayList<KotON> = ArrayList()): KotON() {
 }
 
 data class KotONEntry(val content: Map<String, KotON> = emptyMap()): KotON() {
-    override fun toJson(): String {
-        return content.entries.joinToString(prefix = "{", postfix = "}") {
-            "\"${it.key}\": ${it.value.toJson()}"
+    override fun toJson(writer: Writer): Writer {
+        return content.entries.joinTo(writer, prefix = "{", postfix = "}") {
+            writer.write("\"${it.key}\": ")
+            it.value.toJson(writer)
+            ""
         }
     }
 
