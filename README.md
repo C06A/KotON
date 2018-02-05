@@ -3,7 +3,7 @@
 
 
 [![license](https://img.shields.io/github/license/C06A/KotON.svg)](https://github.com/C06A/KotON/blob/master/LICENSE)
-[![Download Latest](https://img.shields.io/badge/download-1.0--SNAPSHOT-yellow.svg)](https://raw.githubusercontent.com/C06A/KotON/artifactiry/com/helpchoice/kotlin/koton/1.0-SNAPSHOT/koton-1.0-SNAPSHOT.jar)
+[![Download Latest](https://img.shields.io/badge/download-1.0-green.svg)](https://raw.githubusercontent.com/C06A/artifacts/libs-snapshot/com/helpchoice/kotlin/koton/1.0-SNAPSHOT/koton-1.0-SNAPSHOT.jar)
 
 In order to use this library include in your `build.gradle` file follow
 
@@ -12,7 +12,7 @@ In order to use this library include in your `build.gradle` file follow
 repositories {
     mavenCentral()
     maven {
-        url 'https://raw.githubusercontent.com/C06A/KotON/artifactiry'
+        url 'https://raw.githubusercontent.com/C06A/artifacts/libs-snapshot'
     }
 }
 
