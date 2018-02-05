@@ -12,27 +12,27 @@ import java.io.*
  * Also I added toJson() function to convert the Object into (you guessed it) JSON.
  */
 open class KotON() {
-    open fun toJson(writer: Writer): Writer {
-        writer.write("{}")
+    open fun toJson(writer: Writer, separator: String = "", incrent: String = ""): Writer {
+        writer.write("$separator{}")
         return writer
     }
 
-    fun toJson(): String {
-        return toJson(StringWriter()).toString()
+    fun toJson(separator: String = "", incrent: String = ""): String {
+        return toJson(StringWriter(), separator, incrent).toString()
     }
 
     open operator fun get(key: String): KotON {
         if (this is KotONEntry) {
             return this[key]
         }
-        throw Exception("Key access is not supported by this instance")
+        throw IllegalAccessException("Key access is not supported by this instance")
     }
 
     open operator fun get(index: Int): KotON {
         if (this is KotONArray) {
             return this[index]
         }
-        throw Exception("Index is not supported by this instance")
+        throw IllegalAccessException("Index is not supported by this instance")
     }
 
     open operator fun invoke(): Any? {
@@ -41,7 +41,7 @@ open class KotON() {
 }
 
 data class KotONVal<out T>(val value: T): KotON() {
-    override fun toJson(writer: Writer): Writer {
+    override fun toJson(writer: Writer, separator: String, incrent: String): Writer {
         writer.write(
                 when (value) {
                     is String -> "\"$value\""
@@ -56,9 +56,9 @@ data class KotONVal<out T>(val value: T): KotON() {
 }
 
 data class KotONArray(val value: ArrayList<KotON> = ArrayList()): KotON() {
-    override fun toJson(writer: Writer): Writer {
-        value.joinTo(writer, prefix = "[", postfix = "]") {
-            it.toJson(writer)
+    override fun toJson(writer: Writer, separator: String, increment: String): Writer {
+        value.joinTo(writer, ",$separator$increment", "[$separator$increment", "$separator]") {
+            it.toJson(writer, separator + increment, increment)
             ""
         }
         return writer
@@ -75,10 +75,10 @@ data class KotONArray(val value: ArrayList<KotON> = ArrayList()): KotON() {
 }
 
 data class KotONEntry(val content: Map<String, KotON> = emptyMap()): KotON() {
-    override fun toJson(writer: Writer): Writer {
-        return content.entries.joinTo(writer, prefix = "{", postfix = "}") {
+    override fun toJson(writer: Writer, separator: String, increment: String): Writer {
+        return content.entries.joinTo(writer, ",$separator$increment", "{$separator$increment", "$separator}") {
             writer.write("\"${it.key}\": ")
-            it.value.toJson(writer)
+            it.value.toJson(writer, separator + increment, increment)
             ""
         }
     }

@@ -28,8 +28,8 @@ class KotONSpec: StringSpec() {
                 "boolean true" to true
                 "boolean false" to false
             }.toJson() shouldBe
-                    "{\"string\": \"string value\", \"integer\": 42, \"float\": 3.14, " +
-                    "\"boolean true\": true, \"boolean false\": false}"
+                    "{\"string\": \"string value\",\"integer\": 42,\"float\": 3.14," +
+                    "\"boolean true\": true,\"boolean false\": false}"
         }
 
         "array of simple" {
@@ -43,9 +43,9 @@ class KotONSpec: StringSpec() {
                         }
                         ]
             }.toJson() shouldBe
-                    "{\"array\": [{\"stringElement\": \"value of an element\"}, " +
-                    "{\"intKey\": 42, \"floatKey\": 3.14}, " +
-                    "{\"boolTrue\": true, \"booleFalse\": false}]}"
+                    "{\"array\": [{\"stringElement\": \"value of an element\"}," +
+                    "{\"intKey\": 42,\"floatKey\": 3.14}," +
+                    "{\"boolTrue\": true,\"booleFalse\": false}]}"
         }
 
         "complex structure" {
@@ -113,6 +113,90 @@ class KotONSpec: StringSpec() {
                     }
             )
             doc["subStruct"]["subarray"] shouldBe expected
+        }
+
+        "pretty print" {
+            val doc = kotON {
+                "string" to "string value"
+                "integer" to 42
+                "array"[
+                        { "stringElement" to "value of an element" },
+                        { "intKey" to 42; "floatKey" to 3.14 },
+                        {
+                            "boolTrue" to true
+                            "booleFalse" to false
+                        }
+                        ]
+                "float" to 3.14
+                "boolean true" to true
+                "subStruct" {
+                    "substring" to "string value"
+                    "subinteger" to 42
+                    "subfloat" to 3.14
+                    "subarray"[
+                            { "stringElement" to "value of an element" },
+                            { "intKey" to 42; "floatKey" to 3.14 },
+                            {
+                                "boolTrue" to true
+                                "booleFalse" to false
+                            }
+                            ]
+                    "subboolean true" to true
+                    "subboolean false" to false
+                }
+                "boolean false" to false
+            }
+
+            doc.toJson("|", "-").shouldBe(
+                    "{|-\"string\": \"string value\",|-\"integer\": 42,|-\"array\": [|--" +
+                            "{|---\"stringElement\": \"value of an element\"|--},|--{|---\"intKey\": 42,|---\"floatKey\": 3.14|--}," +
+                            "|--{|---\"boolTrue\": true,|---\"booleFalse\": false|--}|-],|-\"float\": 3.14,|-\"boolean true\": true," +
+                            "|-\"subStruct\": {|--\"substring\": \"string value\",|--\"subinteger\": 42,|--\"subfloat\": 3.14," +
+                            "|--\"subarray\": [|---{|----\"stringElement\": \"value of an element\"|---},|---" +
+                            "{|----\"intKey\": 42,|----\"floatKey\": 3.14|---},|---{|----\"boolTrue\": true,|----\"booleFalse\": false|---}|--]," +
+                            "|--\"subboolean true\": true,|--\"subboolean false\": false|-},|-\"boolean false\": false|}")
+
+            doc.toJson("\n", "  ").shouldBe("""
+                {
+                  "string": "string value",
+                  "integer": 42,
+                  "array": [
+                    {
+                      "stringElement": "value of an element"
+                    },
+                    {
+                      "intKey": 42,
+                      "floatKey": 3.14
+                    },
+                    {
+                      "boolTrue": true,
+                      "booleFalse": false
+                    }
+                  ],
+                  "float": 3.14,
+                  "boolean true": true,
+                  "subStruct": {
+                    "substring": "string value",
+                    "subinteger": 42,
+                    "subfloat": 3.14,
+                    "subarray": [
+                      {
+                        "stringElement": "value of an element"
+                      },
+                      {
+                        "intKey": 42,
+                        "floatKey": 3.14
+                      },
+                      {
+                        "boolTrue": true,
+                        "booleFalse": false
+                      }
+                    ],
+                    "subboolean true": true,
+                    "subboolean false": false
+                  },
+                  "boolean false": false
+                }""".trimIndent())
         }
     }
 }
