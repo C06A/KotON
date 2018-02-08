@@ -44,7 +44,7 @@ data class KotONVal<out T>(val value: T): KotON() {
     override fun toJson(writer: Writer, separator: String, incrent: String): Writer {
         writer.write(
                 when (value) {
-                    is String -> "\"$value\""
+                    is String -> "\"${value.escape()}\""
                     else -> value.toString()
                 })
         return writer
@@ -77,7 +77,7 @@ data class KotONArray(val value: ArrayList<KotON> = ArrayList()): KotON() {
 data class KotONEntry(val content: Map<String, KotON> = emptyMap()): KotON() {
     override fun toJson(writer: Writer, separator: String, increment: String): Writer {
         return content.entries.joinTo(writer, ",$separator$increment", "{$separator$increment", "$separator}") {
-            writer.write("\"${it.key}\": ")
+            writer.write("\"${it.key.escape()}\": ")
             it.value.toJson(writer, separator + increment, increment)
             ""
         }
@@ -104,6 +104,17 @@ data class KotONBuilder(val content: MutableMap<String, KotON> = mutableMapOf())
     fun build(): KotONEntry {
         return KotONEntry(content)
     }
+}
+
+inline fun String.escape(): String {
+    return this
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
+            .replace("\n", "\\n")
+            .replace("\u000C", "\\f")
+            .replace("\b", "\\b")
 }
 
 inline fun <T> kotON(value: T): KotONVal<T> {
