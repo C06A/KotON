@@ -12,12 +12,12 @@ In order to use this library include in your `build.gradle` file follow
 repositories {
     mavenCentral()
     maven {
-        url 'https://raw.githubusercontent.com/C06A/artifacts/libs-snapshot'
+        url 'https://raw.githubusercontent.com/C06A/artifacts/libs-release'
     }
 }
 
 dependencies {
-    compile 'com.helpchoice.kotlin:koton:1.0-SNAPSHOT'
+    compile 'com.helpchoice.kotlin:koton:1.0'
 }
 
 ```
@@ -27,7 +27,7 @@ dependencies {
 <dependency>
     <groupId>com.helpchoice.kotlin</groupId>
     <artifactId>koton</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 </dependency>
 ```
 
