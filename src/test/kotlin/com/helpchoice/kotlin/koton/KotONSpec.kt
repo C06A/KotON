@@ -198,5 +198,12 @@ class KotONSpec: StringSpec() {
                   "boolean false": false
                 }""".trimIndent())
         }
+
+        "escaping" {
+            val doc = kotON {
+                "new line" to "new\nline"
+                "curredg return"
+            }
+        }
     }
 }
