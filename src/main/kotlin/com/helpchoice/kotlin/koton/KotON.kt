@@ -5,20 +5,20 @@ import java.io.*
 /**
  * This was inspired by project https://github.com/Jire/KTON.
  *
- * Here I spread content into class hierarchy which helps to scope functions
+ * Here the content get spread into class hierarchy which helps to scope functions
  * and doesn't require both Map and Array for each instance.
  * As a result access to the value requires extra parenthesis.
  *
  * Also I added toJson() function to convert the Object into (you guessed it) JSON.
  */
 open class KotON() {
-    open fun toJson(writer: Writer, separator: String = "", incrent: String = ""): Writer {
+    open fun toJson(writer: Writer, separator: String = "", increment: String = ""): Writer {
         writer.write("$separator{}")
         return writer
     }
 
-    fun toJson(separator: String = "", incrent: String = ""): String {
-        return toJson(StringWriter(), separator, incrent).toString()
+    fun toJson(separator: String = "", increment: String = ""): String {
+        return toJson(StringWriter(), separator, increment).toString()
     }
 
     open operator fun get(key: String): KotON {
@@ -41,7 +41,7 @@ open class KotON() {
 }
 
 data class KotONVal<out T>(val value: T): KotON() {
-    override fun toJson(writer: Writer, separator: String, incrent: String): Writer {
+    override fun toJson(writer: Writer, separator: String, increment: String): Writer {
         writer.write(
                 when (value) {
                     is String -> "\"${value.escape()}\""
