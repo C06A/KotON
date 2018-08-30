@@ -106,7 +106,7 @@ data class KotONBuilder(val content: MutableMap<String, KotON> = mutableMapOf())
     }
 }
 
-inline fun String.escape(): String {
+fun String.escape(): String {
     return this
             .replace("\\", "\\\\")
             .replace("\"", "\\\"")
@@ -117,17 +117,17 @@ inline fun String.escape(): String {
             .replace("\b", "\\b")
 }
 
-inline fun <T> kotON(value: T): KotONVal<T> {
+fun <T> kotON(value: T): KotONVal<T> {
     return KotONVal(value)
 }
 
 inline fun kotON(init: KotONBuilder.() -> Any): KotONEntry {
     val root = KotONBuilder()
-    val value = root.init()
+    root.init()
     return root.build()
 }
 
-inline fun kotON(vararg bodies: KotONBuilder.() -> Unit): KotONArray {
+fun kotON(vararg bodies: KotONBuilder.() -> Unit): KotONArray {
     val kotON = KotONArray()
     bodies.forEach {
         kotON + it

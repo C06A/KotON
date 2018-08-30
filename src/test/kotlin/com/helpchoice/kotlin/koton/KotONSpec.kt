@@ -242,9 +242,26 @@ class KotONSpec : StringSpec() {
 
         "escaping" {
             val doc = kotON {
+                "back slash" to "back\\slash"
+                "double quote" to "double\"quote"
+                "carriage return" to "carriage\rreturn"
+                "tab char" to "tab\tchar"
                 "new line" to "new\nline"
-                "curredg return"
+                "form forward" to "form\u000Cforward"
+                "back ward" to "back\bward"
             }
+
+            doc.toJson("\n", "  ").shouldBe("""
+                {
+                  "back slash": "back\\slash",
+                  "double quote": "double\"quote",
+                  "carriage return": "carriage\rreturn",
+                  "tab char": "tab\tchar",
+                  "new line": "new\nline",
+                  "form forward": "form\fforward",
+                  "back ward": "back\bward"
+                }
+                """.trimIndent())
         }
     }
 }
