@@ -10,7 +10,7 @@ buildscript {
 }
 
 group 'com.helpchoice.kotlin'
-version '1.0.1-SNAPSHOT'
+version '1.0.1'
 
 apply plugin: 'java'
 apply plugin: 'kotlin'
@@ -51,6 +51,6 @@ task writeNewPom {
                     }
                 }
             }
-        }
+        }.writeTo("$libsDir/$project.name-$version-pom.xml")
     }
 }
