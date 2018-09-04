@@ -39,6 +39,8 @@ compileTestKotlin {
 }
 
 task writeNewPom {
+    group 'build'
+
     doLast {
         pom {
             project {
@@ -51,16 +53,20 @@ task writeNewPom {
                     }
                 }
             }
-        }.writeTo("$libsDir/$project.name-$version.pom")
+        }.writeTo("$libsDir/$project.name-${version}.pom")
     }
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
+    group 'build'
+
     classifier = 'sources'
     from sourceSets.main.allSource
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
+    group 'build'
+
     classifier = 'javadoc'
     from javadoc.destinationDir
 }
