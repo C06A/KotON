@@ -21,11 +21,14 @@ open class KotON() {
         return toJson(StringWriter(), separator, increment).toString()
     }
 
-    open operator fun get(key: String): KotON {
-        if (this is KotONEntry) {
-            return this[key]
+    open operator fun get(index: String, vararg key: String): KotON {
+        return key.fold(this[index]) { parent, indx ->
+            if (parent is KotONEntry) {
+                parent[indx]
+            } else {
+                throw IllegalAccessException("Key access is not supported by this instance")
+            }
         }
-        throw IllegalAccessException("Key access is not supported by this instance")
     }
 
     open operator fun get(index: Int): KotON {
@@ -35,7 +38,7 @@ open class KotON() {
         throw IllegalAccessException("Index is not supported by this instance")
     }
 
-    open operator fun invoke(): Any? {
+    open operator fun <T> invoke(): T? {
         return null
     }
 }
@@ -50,8 +53,8 @@ data class KotONVal<out T>(val value: T): KotON() {
         return writer
     }
 
-    override operator fun invoke(): Any? {
-        return value
+    override operator fun <T>invoke(): T? {
+        return value as T
     }
 }
 
@@ -83,8 +86,12 @@ data class KotONEntry(val content: Map<String, KotON> = emptyMap()): KotON() {
         }
     }
 
-    override operator fun get(key: String): KotON {
-        return content[key] ?: super.get(key)
+    override operator fun get(index: String, vararg key: String): KotON {
+        return if (key.size > 0) {
+            content[index]?.get(key[0], *key.drop(1).toTypedArray()) ?: super.get(index, *key)
+        } else {
+            content[index] ?: super.get(index)
+        }
     }
 }
 
