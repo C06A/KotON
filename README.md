@@ -5,7 +5,7 @@
 [![license](https://img.shields.io/github/license/C06A/KotON.svg)](https://github.com/C06A/KotON/blob/master/LICENSE)
 [![Download Latest](https://img.shields.io/badge/download-1.0.1-green.svg)](https://raw.githubusercontent.com/C06A/artifacts/libs-snapshot/com/helpchoice/kotlin/koton/1.0.1/koton-1.0.1.jar)
 
-In order to use this library include in your `build.gradle` file follow
+In order to use this library include in your `build.gradle.kts` file follow
 
 ### Gradle
 ```groovy
@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.helpchoice.kotlin:koton:1.0.2'
+    compile("com.helpchoice.kotlin:koton:1.1.0")
 }
 
 ```
@@ -24,7 +24,7 @@ dependencies {
 <dependency>
     <groupId>com.helpchoice.kotlin</groupId>
     <artifactId>koton</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -37,7 +37,8 @@ Also KotON provides the toJson() method to convert the whole structure into vali
 JSON string.
 
 KotON object with parentheses returns the internal value. Depend on the instance that value
-may be simple Kotlin instance, array or map (see examples below).
+may be simple Kotlin instance, array or map (see examples below). The expected type should
+be provided as generics before parentheses.
 
 To create the root object call the `kotON(...)` function. Depend on provided parameters
 it will return instance of the different type.
@@ -56,16 +57,16 @@ Same function taking `String` parameter get represented in JSON as double-quoted
 For example:
 
 ```Kotlin
-kotON(42)() == 42
+kotON(42)<Int>() == 42
 kotON(42).toJson() == "42"
 
-kotON(3.14)() == 3.14
+kotON(3.14)<Float>() == 3.14
 kotON(3.14).toJson() == "3.14"
 
-kotON(true)() == true
+kotON(true)<Boolean>() == true
 kotON(true).toJson() == "true"
 
-kotON("any text")() == "any text"
+kotON("any text")<String>() == "any text"
 kotON(true).toJson() == "\"any text\""
 ```
 `
@@ -128,17 +129,17 @@ For other examples see Unit Tests.
 
 ### Using KotON instance
 
-KotON instant allows to access its content. Depend on specific type there are 3 ways to access content of the insance:
+KotON instant allows to access its content. Depend on specific type there are 3 ways to access content of the instance:
 
-* empty parenthesis -- returns the value holt by the instance.
+* empty parenthesis with generics type prefix -- returns the value holt by the instance.
   * KotONElement holds a Map
   * KotONArray holds an array
   * <T> KotVal holds an instance of type T
   * instance of base class KotON holds `null` as a value
 * square brackets with String inside returns the value from KotONElement by key
+* square brackets with comma-separated Strings inside equivalent to applying indexes one-by-one in order
 * square brackets with Int inside returns the value from KotONArray by index
-* if provided index (String or Int) is not applicable to the type of the instance
-function throws IllegalAccessException
+* if provided index (String or Int) is not applicable to the type of the instance function throws IllegalAccessException
 
 
 Once the instant get created one can convert it into JSON as a `String` or by writing it into provided Writer object.
@@ -146,4 +147,4 @@ KotON class defines function `toJson()` without Writer parameter to create a new
 Both function can take 2 additional parameters (empty by default). First of them defines the string separating
 elements and last one get appended to the separator for each inner object. Calling function with these 2
 parameters allows to produce the "pretty" JSON if separator is a "new line" character string and increment is
-a string with 2 or 4 spaces or TAB. See unit test for example.
+a string with 2 or 4 spaces or TAB character. See unit test for example.
