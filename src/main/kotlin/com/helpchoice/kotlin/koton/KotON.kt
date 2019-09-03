@@ -1,6 +1,7 @@
 package com.helpchoice.kotlin.koton
 
 import java.io.*
+import kotlin.reflect.KClass
 
 /**
  * This was inspired by project https://github.com/Jire/KTON.
@@ -11,7 +12,7 @@ import java.io.*
  *
  * Also I added toJson() function to convert the Object into (you guessed it) JSON.
  */
-open class KotON() {
+sealed class KotON<V: Any>() {
     open fun toJson(writer: Writer, separator: String = "", increment: String = ""): Writer {
         writer.write("$separator{}")
         return writer
@@ -21,7 +22,7 @@ open class KotON() {
         return toJson(StringWriter(), separator, increment).toString()
     }
 
-    open operator fun get(index: String, vararg key: String): KotON {
+    open operator fun get(index: String, vararg key: String): KotON<Any> {
         return key.fold(this[index]) { parent, indx ->
             if (parent is KotONEntry) {
                 parent[indx]
@@ -31,19 +32,23 @@ open class KotON() {
         }
     }
 
-    open operator fun get(index: Int): KotON {
+    open operator fun get(index: Int): KotON<Any> {
         if (this is KotONArray) {
             return this[index]
         }
         throw IllegalAccessException("Index is not supported by this instance")
     }
 
-    open operator fun <T> invoke(): T? {
+    open operator fun <T> invoke(cls: Class<T>? = null): T? {
+        return null
+    }
+
+    open operator fun invoke(): Any? {
         return null
     }
 }
 
-data class KotONVal<out T>(val value: T): KotON() {
+data class KotONVal<V: Any>(val value: V): KotON<V>() {
     override fun toJson(writer: Writer, separator: String, increment: String): Writer {
         writer.write(
                 when (value) {
@@ -53,12 +58,16 @@ data class KotONVal<out T>(val value: T): KotON() {
         return writer
     }
 
-    override operator fun <T>invoke(): T? {
-        return value as T
+    override operator fun <T>invoke(cls: Class<T>?): T? {
+            return value as T
+    }
+
+    override operator fun invoke(): Any? {
+        return value
     }
 }
 
-data class KotONArray(val value: ArrayList<KotON> = ArrayList()): KotON() {
+data class KotONArray(val value: ArrayList<KotON<Any>> = ArrayList()): KotON<ArrayList<KotON<Any>>>() {
     override fun toJson(writer: Writer, separator: String, increment: String): Writer {
         value.joinTo(writer, ",$separator$increment", "[$separator$increment", "$separator]") {
             it.toJson(writer, separator + increment, increment)
@@ -72,12 +81,12 @@ data class KotONArray(val value: ArrayList<KotON> = ArrayList()): KotON() {
         return this
     }
 
-    override operator fun get(index: Int): KotON {
+    override operator fun get(index: Int): KotON<Any> {
         return value[index]
     }
 }
 
-data class KotONEntry(val content: Map<String, KotON> = emptyMap()): KotON() {
+data class KotONEntry(val content: Map<String, KotON<Any>> = emptyMap()): KotON<Any>() {
     override fun toJson(writer: Writer, separator: String, increment: String): Writer {
         return content.entries.joinTo(writer, ",$separator$increment", "{$separator$increment", "$separator}") {
             writer.write("\"${it.key.escape()}\": ")
@@ -86,7 +95,7 @@ data class KotONEntry(val content: Map<String, KotON> = emptyMap()): KotON() {
         }
     }
 
-    override operator fun get(index: String, vararg key: String): KotON {
+    override operator fun get(index: String, vararg key: String): KotON<Any> {
         return if (key.size > 0) {
             content[index]?.get(key[0], *key.drop(1).toTypedArray()) ?: super.get(index, *key)
         } else {
@@ -95,8 +104,8 @@ data class KotONEntry(val content: Map<String, KotON> = emptyMap()): KotON() {
     }
 }
 
-data class KotONBuilder(val content: MutableMap<String, KotON> = mutableMapOf()) {
-    infix fun <T> String.to(value: T) {
+data class KotONBuilder(val content: MutableMap<String, KotON<Any>> = mutableMapOf()) {
+    infix fun String.to(value: Any) {
         content[this] = KotONVal(value)
     }
 
@@ -105,10 +114,10 @@ data class KotONBuilder(val content: MutableMap<String, KotON> = mutableMapOf())
     }
 
     operator fun String.get(vararg bodies: KotONBuilder.() -> Unit) {
-        content[this] = kotON(*bodies)
+        content[this] = kotON(*bodies) as KotON<Any>
     }
 
-    fun build(): KotONEntry {
+    fun build(): KotON<Any> {
         return KotONEntry(content)
     }
 }
@@ -124,11 +133,11 @@ fun String.escape(): String {
             .replace("\b", "\\b")
 }
 
-fun <T> kotON(value: T): KotONVal<T> {
+fun kotON(value: Any): KotONVal<Any> {
     return KotONVal(value)
 }
 
-inline fun kotON(init: KotONBuilder.() -> Any): KotONEntry {
+inline fun kotON(init: KotONBuilder.() -> Any): KotON<Any> {
     val root = KotONBuilder()
     root.init()
     return root.build()

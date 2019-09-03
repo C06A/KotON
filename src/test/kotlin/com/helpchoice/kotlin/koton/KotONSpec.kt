@@ -6,7 +6,6 @@ import io.kotlintest.specs.StringSpec
 class KotONSpec : StringSpec() {
     init {
         "empty" {
-            KotON().toJson() shouldBe "{}"
             kotON { }.toJson() shouldBe "{}"
         }
 
@@ -86,6 +85,12 @@ class KotONSpec : StringSpec() {
                 }
                 "boolean false" to false
             }
+
+            doc["string"]() shouldBe "string value"
+            doc["integer"]() shouldBe 42
+            doc["float"]() shouldBe 3.14
+            doc["boolean true"]() shouldBe true
+            doc["boolean false"]() shouldBe false
 
             doc["string"]<String>() shouldBe "string value"
             doc["integer"]<Int>() shouldBe 42
