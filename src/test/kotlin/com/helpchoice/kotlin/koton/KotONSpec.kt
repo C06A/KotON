@@ -1,6 +1,7 @@
 package com.helpchoice.kotlin.koton
 
 import io.kotlintest.matchers.shouldBe
+import io.kotlintest.matchers.shouldThrow
 import io.kotlintest.specs.StringSpec
 
 class KotONSpec : StringSpec() {
@@ -91,6 +92,11 @@ class KotONSpec : StringSpec() {
             doc["float"]() shouldBe 3.14
             doc["boolean true"]() shouldBe true
             doc["boolean false"]() shouldBe false
+            shouldThrow<IllegalAccessException> {
+                doc["unexisting"]
+            }.apply {
+                message shouldBe "Key access is not supported by this instance"
+            }
 
             doc["string"]<String>() shouldBe "string value"
             doc["integer"]<Int>() shouldBe 42

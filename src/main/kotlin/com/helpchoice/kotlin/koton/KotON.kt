@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
  *
  * Also I added toJson() function to convert the Object into (you guessed it) JSON.
  */
-sealed class KotON<V: Any>() {
+sealed class KotON<V : Any>() {
     open fun toJson(writer: Writer, separator: String = "", increment: String = ""): Writer {
         writer.write("$separator{}")
         return writer
@@ -23,12 +23,16 @@ sealed class KotON<V: Any>() {
     }
 
     open operator fun get(index: String, vararg key: String): KotON<Any> {
-        return key.fold(this[index]) { parent, indx ->
-            if (parent is KotONEntry) {
-                parent[indx]
-            } else {
-                throw IllegalAccessException("Key access is not supported by this instance")
+        return if (key.isNotEmpty()) {
+            key.fold(this[index]) { parent, indx ->
+                if (parent is KotONEntry) {
+                    parent[indx]
+                } else {
+                    throw IllegalAccessException("Key access is not supported by this instance")
+                }
             }
+        } else {
+            this[index]
         }
     }
 
@@ -48,7 +52,7 @@ sealed class KotON<V: Any>() {
     }
 }
 
-data class KotONVal<V: Any>(val value: V): KotON<V>() {
+data class KotONVal<V : Any>(val value: V) : KotON<V>() {
     override fun toJson(writer: Writer, separator: String, increment: String): Writer {
         writer.write(
                 when (value) {
@@ -58,8 +62,8 @@ data class KotONVal<V: Any>(val value: V): KotON<V>() {
         return writer
     }
 
-    override operator fun <T>invoke(cls: Class<T>?): T? {
-            return value as T
+    override operator fun <T> invoke(cls: Class<T>?): T? {
+        return value as T
     }
 
     override operator fun invoke(): Any? {
@@ -67,7 +71,7 @@ data class KotONVal<V: Any>(val value: V): KotON<V>() {
     }
 }
 
-data class KotONArray(val value: ArrayList<KotON<Any>> = ArrayList()): KotON<ArrayList<KotON<Any>>>() {
+data class KotONArray(val value: ArrayList<KotON<Any>> = ArrayList()) : KotON<ArrayList<KotON<Any>>>() {
     override fun toJson(writer: Writer, separator: String, increment: String): Writer {
         value.joinTo(writer, ",$separator$increment", "[$separator$increment", "$separator]") {
             it.toJson(writer, separator + increment, increment)
@@ -86,7 +90,7 @@ data class KotONArray(val value: ArrayList<KotON<Any>> = ArrayList()): KotON<Arr
     }
 }
 
-data class KotONEntry(val content: Map<String, KotON<Any>> = emptyMap()): KotON<Any>() {
+data class KotONEntry(val content: Map<String, KotON<Any>> = emptyMap()) : KotON<Any>() {
     override fun toJson(writer: Writer, separator: String, increment: String): Writer {
         return content.entries.joinTo(writer, ",$separator$increment", "{$separator$increment", "$separator}") {
             writer.write("\"${it.key.escape()}\": ")
@@ -96,11 +100,13 @@ data class KotONEntry(val content: Map<String, KotON<Any>> = emptyMap()): KotON<
     }
 
     override operator fun get(index: String, vararg key: String): KotON<Any> {
-        return if (key.size > 0) {
-            content[index]?.get(key[0], *key.drop(1).toTypedArray()) ?: super.get(index, *key)
-        } else {
-            content[index] ?: super.get(index)
-        }
+        return content[index]?.let {
+            if (key.isEmpty()) {
+                it
+            } else {
+                it.get(key[0], *key.drop(1).toTypedArray())
+            }
+        } ?: throw IllegalAccessException("Key access is not supported by this instance")
     }
 }
 
