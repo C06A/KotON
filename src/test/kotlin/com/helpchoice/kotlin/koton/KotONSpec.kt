@@ -69,9 +69,11 @@ class KotONSpec : StringSpec() {
                 ]
                 "float" to 3.14
                 "boolean true" to true
+                "null value" to null
                 "subStruct" {
                     "substring" to "string value"
                     "subinteger" to 42
+                    "null subvalue" to null
                     "subfloat" to 3.14
                     "subarray"[
                             { "stringElement" to "value of an element" },
@@ -92,17 +94,18 @@ class KotONSpec : StringSpec() {
             doc["float"]() shouldBe 3.14
             doc["boolean true"]() shouldBe true
             doc["boolean false"]() shouldBe false
-            shouldThrow<IllegalAccessException> {
-                doc["unexisting"]
-            }.apply {
-                message shouldBe "Key access is not supported by this instance"
-            }
+            doc["null value"]() shouldBe null
+            doc["unexisting"]() shouldBe null
 
             doc["string"]<String>() shouldBe "string value"
             doc["integer"]<Int>() shouldBe 42
             doc["float"]<Float>() shouldBe 3.14
             doc["boolean true"]<Boolean>() shouldBe true
             doc["boolean false"]<Boolean>() shouldBe false
+            doc["null value"]<Int>() shouldBe null
+            doc["null value"]<String>() shouldBe null
+            doc["null value"]<Boolean>() shouldBe null
+            doc["null value"]<Map<String, Any>>() shouldBe null
 
             doc["array"][0]["stringElement"]<String>() shouldBe "value of an element"
             doc["array"][1]["intKey"]<Int>() shouldBe 42
@@ -123,6 +126,7 @@ class KotONSpec : StringSpec() {
             doc["subStruct"]["subarray"] shouldBe expect["expected"]
             doc["subStruct", "subarray"][1]["intKey"]<Int>() shouldBe 42
             doc["subStruct", "subinteger"]<Int>() shouldBe 42
+            doc["subStruct", "null subvalue"]() shouldBe null
 
             val expected = kotON(
                     { "stringElement" to "value of an element" },

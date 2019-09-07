@@ -52,7 +52,7 @@ sealed class KotON<V : Any>() {
     }
 }
 
-data class KotONVal<V : Any>(val value: V) : KotON<V>() {
+data class KotONVal<V : Any>(val value: V?) : KotON<V>() {
     override fun toJson(writer: Writer, separator: String, increment: String): Writer {
         writer.write(
                 when (value) {
@@ -106,7 +106,7 @@ data class KotONEntry(val content: Map<String, KotON<Any>> = emptyMap()) : KotON
             } else {
                 it.get(key[0], *key.drop(1).toTypedArray())
             }
-        } ?: throw IllegalAccessException("Key access is not supported by this instance")
+        } ?: KotONVal<Any>(null)
     }
 }
 
