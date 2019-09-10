@@ -100,6 +100,14 @@ class KotONSpec : StringSpec() {
             shouldThrow<NullPointerException> { doc["unexisting"]() }
                     .apply { message shouldBe "Object contains no value" }
 
+            doc("string") shouldBe "string value"
+            doc("integer") shouldBe 42
+            doc("float") shouldBe 3.14
+            doc("boolean true") shouldBe true
+            doc("boolean false") shouldBe false
+            doc("null value") shouldBe null
+            doc("unexisting") shouldBe null
+
             doc["string"]<String>() shouldBe "string value"
             doc["integer"]<Int>() shouldBe 42
             doc["float"]<Float>() shouldBe 3.14
@@ -114,11 +122,37 @@ class KotONSpec : StringSpec() {
             shouldThrow<NullPointerException> { doc["null value"]<Map<String, Any>>() }
                     .apply { message shouldBe "Object contains no value" }
 
+            doc<String>("string") shouldBe "string value"
+            doc<Int>("integer") shouldBe 42
+            doc<Float>("float") shouldBe 3.14
+            doc<Boolean>("boolean true") shouldBe true
+            doc<Boolean>("boolean false") shouldBe false
+            doc<Int>("null value") shouldBe null
+            doc<String>("null value") shouldBe null
+            doc<Boolean>("null value") shouldBe null
+            doc<Map<String, Any>>("null value") shouldBe null
+
+            doc("string", cls = String::class.java) shouldBe "string value"
+            doc("integer", cls = Int::class.java) shouldBe 42
+            doc("float", cls = Float::class.java) shouldBe 3.14
+            doc("boolean true", cls = Boolean::class.java) shouldBe true
+            doc("boolean false", cls = Boolean::class.java) shouldBe false
+            doc("null value", cls = Int::class.java) shouldBe null
+            doc("null value", cls = String::class.java) shouldBe null
+            doc("null value", cls = Boolean::class.java) shouldBe null
+            doc("null value", cls = Map::class.java) shouldBe null
+
             doc["array"][0]["stringElement"]<String>() shouldBe "value of an element"
             doc["array"][1]["intKey"]<Int>() shouldBe 42
             doc["array"][1]["floatKey"]<Float>() shouldBe 3.14
             doc["array"][2]["boolTrue"]<Boolean>() shouldBe true
             doc["array"][2]["booleFalse"]<Boolean>() shouldBe false
+
+            doc["array"][0]<String>("stringElement") shouldBe "value of an element"
+            doc["array"][1]<Int>("intKey") shouldBe 42
+            doc["array"][1]<Float>("floatKey") shouldBe 3.14
+            doc["array"][2]<Boolean>("boolTrue") shouldBe true
+            doc["array"][2]<Boolean>("booleFalse") shouldBe false
 
             val expect = kotON {
                 "expected"[

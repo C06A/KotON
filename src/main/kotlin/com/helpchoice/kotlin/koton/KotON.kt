@@ -25,25 +25,33 @@ sealed class KotON<V : Any>() {
         return toJson(StringWriter(), separator, increment).toString()
     }
 
-    abstract operator fun get(index: String, vararg key: String): KotON<Any>
+    abstract fun internalValue(): V?
 
-    protected fun deRef(value: Any?, index: String, vararg key: String): KotON<Any> {
+    operator fun get(index: String, vararg key: String): KotON<Any> {
+        val value = internalValue()
         return when (value) {
             is KotON<*> -> value
             is Collection<*> -> value.toTypedArray()[index.toInt()]
-            is Dictionary<*, *> -> value[index]
+            is Dictionary<*, *> -> (value as Map<String, Any?>)[index]
+            is Map<*, *> -> (value as Map<String, Any?>)[index]
             else -> throw IllegalAccessException("Index is not supported by this instance")
         }?.let {
-            when (it) {
-                is KotON<*> -> it.get(key[0], *key.drop(1).toTypedArray())
-                else -> KotONVal(it).get(key[0], *key.drop(1).toTypedArray())
+            if (key.isNotEmpty()) {
+                when (it) {
+                    is KotON<*> -> it.get(key[0], *key.drop(1).toTypedArray())
+                    else -> KotONVal(it).get(key[0], *key.drop(1).toTypedArray())
+                }
+            } else {
+                when (it) {
+                    is KotON<*> -> it as KotON<Any>
+                    else -> KotONVal(it)
+                }
             }
         } ?: throw NullPointerException("Object contains no value")
     }
 
-    abstract operator fun get(index: Int): KotON<Any>
-
-    protected fun deRef(value: Any?, index: Int): KotON<Any> {
+    operator fun get(index: Int): KotON<Any> {
+        val value = internalValue()
         when (value) {
             is KotON<*> -> value
             is Collection<*> -> value.toTypedArray()[index]
@@ -57,12 +65,28 @@ sealed class KotON<V : Any>() {
         } ?: throw NullPointerException("Object contains no value")
     }
 
-    open operator fun <T> invoke(cls: Class<T>? = null): T? {
-        return null
+    open operator fun <T> invoke(vararg key: String, cls: Class<T>? = null): T? {
+        try {
+            return if (key.isNotEmpty()) {
+                get(key[0], *key.drop(1).toTypedArray())<T>()
+            } else {
+                internalValue() as T?
+            }
+        } catch (e: Exception) {
+            return null
+        }
     }
 
-    open operator fun invoke(): Any? {
-        return null
+    open operator fun invoke(vararg key: String): Any? {
+        try {
+            return if (key.isNotEmpty()) {
+                get(key[0], *key.drop(1).toTypedArray())()
+            } else {
+                internalValue()
+            }
+        } catch (e: Exception) {
+            return null
+        }
     }
 }
 
@@ -82,19 +106,7 @@ private data class KotONVal<V : Any>(val value: V? = null) : KotON<V>() {
         return writer
     }
 
-    override operator fun get(index: String, vararg key: String): KotON<Any> {
-        return deRef(value, index, *key)
-    }
-
-    override operator fun get(index: Int): KotON<Any> {
-        return deRef(value, index)
-    }
-
-    override operator fun <T> invoke(cls: Class<T>?): T? {
-        return value as T
-    }
-
-    override operator fun invoke(): Any? {
+    override fun internalValue(): V? {
         return value
     }
 }
@@ -108,12 +120,8 @@ private data class KotONArray(val value: ArrayList<KotON<Any>> = ArrayList()) : 
         return writer
     }
 
-    override operator fun get(index: String, vararg key: String): KotON<Any> {
-        return deRef(value, index, *key)
-    }
-
-    override operator fun get(index: Int): KotON<Any> {
-        return deRef(value, index)
+    override fun internalValue(): ArrayList<KotON<Any>>? {
+        return value
     }
 
     operator fun plus(body: KotONBuilder.() -> Any): KotONArray {
@@ -122,10 +130,6 @@ private data class KotONArray(val value: ArrayList<KotON<Any>> = ArrayList()) : 
         }
         return this
     }
-
-//    override operator fun get(index: Int): KotON<Any> {
-//        return value[index]
-//    }
 }
 
 private data class KotONEntry(val content: Map<String, KotON<Any>> = emptyMap()) : KotON<Any>() {
@@ -137,18 +141,8 @@ private data class KotONEntry(val content: Map<String, KotON<Any>> = emptyMap())
         }
     }
 
-    override operator fun get(index: String, vararg key: String): KotON<Any> {
-        return (content)[index]?.let {
-            if (key.isEmpty()) {
-                it
-            } else {
-                it.get(key[0], *key.drop(1).toTypedArray())
-            }
-        } ?: throw NullPointerException("Object contains no value")
-    }
-
-    override operator fun get(index: Int): KotON<Any> {
-        return deRef(content, index)
+    override fun internalValue(): Map<String, KotON<Any>>? {
+        return content
     }
 }
 
