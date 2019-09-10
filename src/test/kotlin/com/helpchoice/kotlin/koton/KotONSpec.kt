@@ -3,6 +3,7 @@ package com.helpchoice.kotlin.koton
 import io.kotlintest.matchers.shouldBe
 import io.kotlintest.matchers.shouldThrow
 import io.kotlintest.specs.StringSpec
+import java.lang.NullPointerException
 
 class KotONSpec : StringSpec() {
     init {
@@ -94,18 +95,24 @@ class KotONSpec : StringSpec() {
             doc["float"]() shouldBe 3.14
             doc["boolean true"]() shouldBe true
             doc["boolean false"]() shouldBe false
-            doc["null value"]() shouldBe null
-            doc["unexisting"]() shouldBe null
+            shouldThrow<NullPointerException> { doc["null value"]() }
+                    .apply { message shouldBe "Object contains no value" }
+            shouldThrow<NullPointerException> { doc["unexisting"]() }
+                    .apply { message shouldBe "Object contains no value" }
 
             doc["string"]<String>() shouldBe "string value"
             doc["integer"]<Int>() shouldBe 42
             doc["float"]<Float>() shouldBe 3.14
             doc["boolean true"]<Boolean>() shouldBe true
             doc["boolean false"]<Boolean>() shouldBe false
-            doc["null value"]<Int>() shouldBe null
-            doc["null value"]<String>() shouldBe null
-            doc["null value"]<Boolean>() shouldBe null
-            doc["null value"]<Map<String, Any>>() shouldBe null
+            shouldThrow<NullPointerException> { doc["null value"]<Int>() }
+                    .apply { message shouldBe "Object contains no value" }
+            shouldThrow<NullPointerException> { doc["null value"]<String>() }
+                    .apply { message shouldBe "Object contains no value" }
+            shouldThrow<NullPointerException> { doc["null value"]<Boolean>() }
+                    .apply { message shouldBe "Object contains no value" }
+            shouldThrow<NullPointerException> { doc["null value"]<Map<String, Any>>() }
+                    .apply { message shouldBe "Object contains no value" }
 
             doc["array"][0]["stringElement"]<String>() shouldBe "value of an element"
             doc["array"][1]["intKey"]<Int>() shouldBe 42
@@ -126,7 +133,8 @@ class KotONSpec : StringSpec() {
             doc["subStruct"]["subarray"] shouldBe expect["expected"]
             doc["subStruct", "subarray"][1]["intKey"]<Int>() shouldBe 42
             doc["subStruct", "subinteger"]<Int>() shouldBe 42
-            doc["subStruct", "null subvalue"]() shouldBe null
+            shouldThrow<NullPointerException> { doc["subStruct", "null subvalue"]() }
+                    .apply { message shouldBe "Object contains no value" }
 
             val expected = kotON(
                     { "stringElement" to "value of an element" },
@@ -139,7 +147,8 @@ class KotONSpec : StringSpec() {
             doc["subStruct", "subarray"] shouldBe expected
         }
 
-        "pretty print" {
+        "pretty print"
+        {
             val doc = kotON {
                 "string" to "string value"
                 "integer" to 42
@@ -257,7 +266,8 @@ class KotONSpec : StringSpec() {
                 }""".trimIndent())
         }
 
-        "escaping" {
+        "escaping"
+        {
             val doc = kotON {
                 "back slash" to "back\\slash"
                 "double quote" to "double\"quote"
