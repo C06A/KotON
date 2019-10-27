@@ -27,6 +27,15 @@ sealed class KotON<V : Any>() {
 
     abstract fun internalValue(): V?
 
+    fun contains(index: String, vararg key: String): Boolean {
+        try {
+            this.get(index, *key)
+        } catch (e: NullPointerException) {
+            return false
+        }
+        return true
+    }
+
     operator fun get(index: String, vararg key: String): KotON<Any> {
         val value = internalValue()
         return when (value) {
@@ -96,11 +105,14 @@ private data class KotONVal<V : Any>(val value: V? = null) : KotON<V>() {
                 when (value) {
                     is String -> "\"${value.escape()}\""
                     is Array<*> -> "${value.toList()
-                            .map { "${KotONVal(it).toJson("$increment$separator", increment)}" }
+                            .map { "${KotONVal(it).toJson("$separator$increment", increment)}" }
                             .joinToString(", ", "$separator[", "$separator]")}"
                     is Collection<*> -> "${value
-                            .map { "${KotONVal(it).toJson("$increment$separator", increment)}" }
+                            .map { "${KotONVal(it).toJson("$separator$increment", increment)}" }
                             .joinToString(", ", "$separator[", "$separator]")}"
+                    is Map<*, *> -> "${value.map { (key, vlue) -> 
+                        "\"$key\": ${KotONVal(vlue).toJson()}"
+                    }.joinToString(",$separator$increment", "$separator{", "$separator}")}"
                     else -> value.toString()
                 })
         return writer

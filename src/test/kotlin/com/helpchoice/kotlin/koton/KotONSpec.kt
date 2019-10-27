@@ -100,6 +100,14 @@ class KotONSpec : StringSpec() {
             shouldThrow<NullPointerException> { doc["unexisting"]() }
                     .apply { message shouldBe "Object contains no value" }
 
+            doc.contains("string") shouldBe true
+            doc.contains("integer") shouldBe true
+            doc.contains("float") shouldBe true
+            doc.contains("boolean true") shouldBe true
+            doc.contains("boolean false") shouldBe true
+            doc.contains("null value") shouldBe false
+            doc.contains("unexisting") shouldBe false
+
             doc("string") shouldBe "string value"
             doc("integer") shouldBe 42
             doc("float") shouldBe 3.14
