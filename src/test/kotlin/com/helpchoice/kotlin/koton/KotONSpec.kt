@@ -4,21 +4,51 @@ import io.kotlintest.matchers.shouldBe
 import io.kotlintest.matchers.shouldThrow
 import io.kotlintest.specs.StringSpec
 import java.lang.NullPointerException
+import java.math.BigDecimal
 
 class KotONSpec : StringSpec() {
     init {
         "empty" {
-            kotON { }.toJson() shouldBe "{}"
+            kotON { }.apply {
+                toJson() shouldBe "{}"
+                contains("anything") shouldBe false
+            }
         }
 
         "numbers" {
-            kotON(42).toJson() shouldBe "42"
-            kotON(3.14).toJson() shouldBe "3.14"
+            kotON(42).apply {
+                toJson() shouldBe "42"
+                this() shouldBe 42
+                this<Int>() shouldBe 42
+                this<Long>() shouldBe 42
+                this<Number>() shouldBe 42
+                this<BigDecimal>() shouldBe 42
+                contains("anything") shouldBe false
+            }
+            kotON(3.14).apply {
+                toJson() shouldBe "3.14"
+                this() shouldBe 3.14
+                this<Float>() shouldBe 3.14
+                this<Double>() shouldBe 3.14
+                this<Number>() shouldBe 3.14
+                this<BigDecimal>() shouldBe 3.14
+                contains("anything") shouldBe false
+            }
         }
 
         "boolean" {
-            kotON(true).toJson() shouldBe "true"
-            kotON(false).toJson() shouldBe "false"
+            kotON(true).apply {
+                toJson() shouldBe "true"
+                this() shouldBe true
+                this<Boolean>() shouldBe true
+                contains("anything") shouldBe false
+            }
+            kotON(false).apply {
+                toJson() shouldBe "false"
+                this() shouldBe false
+                this<Boolean>() shouldBe false
+                contains("anything") shouldBe false
+            }
         }
 
         "simple collection" {
@@ -28,13 +58,29 @@ class KotONSpec : StringSpec() {
                 "float" to 3.14
                 "boolean true" to true
                 "boolean false" to false
-            }.toJson() shouldBe """
+            }.apply {
+                toJson() shouldBe """
                 {
                     "string": "string value",
                     "integer": 42,"float": 3.14,
                     "boolean true": true,
                     "boolean false": false
                 }""".lines().map { it.trim() }.joinToString("")
+
+                contains("string") shouldBe true
+                this["string"]() shouldBe "string value"
+                contains("integer") shouldBe true
+                this["integer"]() shouldBe 42
+                contains("float") shouldBe true
+                this["float"]() shouldBe 3.14
+                contains("boolean true") shouldBe true
+                this["boolean true"]() shouldBe true
+                contains("boolean false") shouldBe true
+                this["boolean false"]() shouldBe false
+
+                contains("anything else") shouldBe false
+                contains("string", "anything else") shouldBe false
+            }
         }
 
         "array of simple" {
@@ -47,13 +93,37 @@ class KotONSpec : StringSpec() {
                             "booleFalse" to false
                         }
                 ]
-            }.toJson() shouldBe """
+            }.apply {
+                toJson() shouldBe """
                 {"array": [
                     {"stringElement": "value of an element"},
                     {"intKey": 42,"floatKey": 3.14},
                     {"boolTrue": true,"booleFalse": false}
                 ]}
                 """.lines().map { it.trim() }.joinToString("")
+
+                contains("array") shouldBe true
+                contains("array", "0", "stringElement") shouldBe true
+                this["array", "0", "stringElement"]() shouldBe "value of an element"
+                this["array"][0]["stringElement"]() shouldBe "value of an element"
+                contains("array", "1", "intKey") shouldBe true
+                this["array", "1", "intKey"]() shouldBe 42
+                this["array"][1]["intKey"]() shouldBe 42
+                contains("array", "1", "floatKey") shouldBe true
+                this["array", "1", "floatKey"]() shouldBe 3.14
+                this["array"][1]["floatKey"]() shouldBe 3.14
+                contains("array", "2", "boolTrue") shouldBe true
+                this["array", "2", "boolTrue"]() shouldBe true
+                this["array"][2]["boolTrue"]() shouldBe true
+                contains("array", "2", "booleFalse") shouldBe true
+                this["array", "2", "booleFalse"]() shouldBe false
+                this["array"][2]["booleFalse"]() shouldBe false
+
+                contains("array", "somethig else") shouldBe false
+                contains("array", "0", "somethig else") shouldBe false
+                contains("array", "10", "somethig else") shouldBe false
+                contains("somethig else") shouldBe false
+            }
         }
 
         "complex structure" {
@@ -105,6 +175,7 @@ class KotONSpec : StringSpec() {
             doc.contains("float") shouldBe true
             doc.contains("boolean true") shouldBe true
             doc.contains("boolean false") shouldBe true
+
             doc.contains("null value") shouldBe false
             doc.contains("unexisting") shouldBe false
 
@@ -174,6 +245,7 @@ class KotONSpec : StringSpec() {
             }
             doc["subStruct"]["subarray"] shouldBe expect["expected"]
             doc["subStruct", "subarray"][1]["intKey"]<Int>() shouldBe 42
+            doc["subStruct", "subarray", "1", "intKey"]<Int>() shouldBe 42
             doc["subStruct", "subinteger"]<Int>() shouldBe 42
             shouldThrow<NullPointerException> { doc["subStruct", "null subvalue"]() }
                     .apply { message shouldBe "Object contains no value" }
@@ -189,8 +261,7 @@ class KotONSpec : StringSpec() {
             doc["subStruct", "subarray"] shouldBe expected
         }
 
-        "pretty print"
-        {
+        "pretty print" {
             val doc = kotON {
                 "string" to "string value"
                 "integer" to 42
@@ -308,8 +379,7 @@ class KotONSpec : StringSpec() {
                 }""".trimIndent())
         }
 
-        "escaping"
-        {
+        "escaping" {
             val doc = kotON {
                 "back slash" to "back\\slash"
                 "double quote" to "double\"quote"

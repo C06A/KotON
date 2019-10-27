@@ -30,7 +30,7 @@ sealed class KotON<V : Any>() {
     fun contains(index: String, vararg key: String): Boolean {
         try {
             this.get(index, *key)
-        } catch (e: NullPointerException) {
+        } catch (e: Exception) {
             return false
         }
         return true
