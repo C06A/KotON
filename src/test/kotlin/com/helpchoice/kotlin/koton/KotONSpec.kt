@@ -246,6 +246,8 @@ class KotONSpec : StringSpec() {
             doc["subStruct"]["subarray"] shouldBe expect["expected"]
             doc["subStruct", "subarray"][1]["intKey"]<Int>() shouldBe 42
             doc["subStruct", "subarray", "1", "intKey"]<Int>() shouldBe 42
+            doc("subStruct", "subarray", "1", "intKey") shouldBe 42
+            doc<Int>("subStruct", "subarray", "1", "intKey") shouldBe 42
             doc["subStruct", "subinteger"]<Int>() shouldBe 42
             shouldThrow<NullPointerException> { doc["subStruct", "null subvalue"]() }
                     .apply { message shouldBe "Object contains no value" }
