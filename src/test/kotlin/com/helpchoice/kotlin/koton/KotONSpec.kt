@@ -10,6 +10,7 @@ class KotONSpec : StringSpec() {
     init {
         "empty" {
             kotON { }.apply {
+                size() shouldBe 0
                 toJson() shouldBe "{}"
                 contains("anything") shouldBe false
             }
@@ -17,6 +18,7 @@ class KotONSpec : StringSpec() {
 
         "numbers" {
             kotON(42).apply {
+                size() shouldBe 1
                 toJson() shouldBe "42"
                 this() shouldBe 42
                 this<Int>() shouldBe 42
@@ -26,6 +28,7 @@ class KotONSpec : StringSpec() {
                 contains("anything") shouldBe false
             }
             kotON(3.14).apply {
+                size() shouldBe 1
                 toJson() shouldBe "3.14"
                 this() shouldBe 3.14
                 this<Float>() shouldBe 3.14
@@ -38,12 +41,14 @@ class KotONSpec : StringSpec() {
 
         "boolean" {
             kotON(true).apply {
+                size() shouldBe 1
                 toJson() shouldBe "true"
                 this() shouldBe true
                 this<Boolean>() shouldBe true
                 contains("anything") shouldBe false
             }
             kotON(false).apply {
+                size() shouldBe 1
                 toJson() shouldBe "false"
                 this() shouldBe false
                 this<Boolean>() shouldBe false
@@ -59,6 +64,7 @@ class KotONSpec : StringSpec() {
                 "boolean true" to true
                 "boolean false" to false
             }.apply {
+                size() shouldBe 5
                 toJson() shouldBe """
                 {
                     "string": "string value",
@@ -94,6 +100,7 @@ class KotONSpec : StringSpec() {
                         }
                 ]
             }.apply {
+                size() shouldBe 1
                 toJson() shouldBe """
                 {"array": [
                     {"stringElement": "value of an element"},
@@ -104,6 +111,7 @@ class KotONSpec : StringSpec() {
 
                 contains("array") shouldBe true
                 contains("array", "0", "stringElement") shouldBe true
+                this["array"].size() shouldBe 3
                 this["array", "0", "stringElement"]() shouldBe "value of an element"
                 this["array"][0]["stringElement"]() shouldBe "value of an element"
                 contains("array", "1", "intKey") shouldBe true
@@ -160,6 +168,7 @@ class KotONSpec : StringSpec() {
                 "boolean false" to false
             }
 
+            doc.size() shouldBe 7 // value "null" is not counted
             doc["string"]() shouldBe "string value"
             doc["integer"]() shouldBe 42
             doc["float"]() shouldBe 3.14

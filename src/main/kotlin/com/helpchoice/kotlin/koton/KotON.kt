@@ -64,6 +64,22 @@ sealed class KotON<V : Any>() {
     }
 
     /**
+     * Returns the number of elements on the top level
+     *
+     * @return the number of elements on the top level
+     * @throws IllegalAccessException if found element of not expected type
+     */
+    fun size(): Int {
+        val value = internalValue()
+        return when (value) {
+            is Collection<*> -> value.size
+            is Dictionary<*, *> -> (value as Map<String, Any?>).entries.size
+            is Map<*, *> -> (value as Map<String, Any?>).entries.size
+            else -> 1
+        }
+    }
+
+    /**
      * Retrieves the internal structure value for the path.
      *
      * Each element in the list of parameters represent the relationship to the sub-element to select.
