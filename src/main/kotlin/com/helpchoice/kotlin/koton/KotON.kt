@@ -233,7 +233,7 @@ private data class KotONEntry(val content: Map<String, KotON<Any>> = emptyMap())
 }
 
 data class KotONBuilder(val content: MutableMap<String, KotON<Any>> = mutableMapOf()) {
-    infix fun String.to(value: Any) {
+    infix fun String.to(value: Any?) {
         content[this] = KotONVal(value)
     }
 

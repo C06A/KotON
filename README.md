@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    compile("com.helpchoice.kotlin:koton:1.1.0")
+    compile("com.helpchoice.kotlin:koton:1.1.6")
 }
 
 ```
@@ -24,7 +24,7 @@ dependencies {
 <dependency>
     <groupId>com.helpchoice.kotlin</groupId>
     <artifactId>koton</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.6</version>
 </dependency>
 ```
 
@@ -37,7 +37,7 @@ Also KotON provides the toJson() method to convert the whole structure into vali
 JSON string.
 
 KotON object with parentheses returns the internal value. Depend on the instance that value
-may be simple Kotlin instance, array or map (see examples below). The expected type should
+may be simple Kotlin instance, array or map (see examples below). The expected type might
 be provided as generics before parentheses.
 
 To create the root object call the `kotON(...)` function. Depend on provided parameters
@@ -69,7 +69,6 @@ kotON(true).toJson() == "true"
 kotON("any text")<String>() == "any text"
 kotON(true).toJson() == "\"any text\""
 ```
-`
 
 ### Array value
 

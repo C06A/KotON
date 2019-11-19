@@ -168,14 +168,13 @@ class KotONSpec : StringSpec() {
                 "boolean false" to false
             }
 
-            doc.size() shouldBe 7 // value "null" is not counted
+            doc.size() shouldBe 8 // value "null" is not counted
             doc["string"]() shouldBe "string value"
             doc["integer"]() shouldBe 42
             doc["float"]() shouldBe 3.14
             doc["boolean true"]() shouldBe true
             doc["boolean false"]() shouldBe false
-            shouldThrow<NullPointerException> { doc["null value"]() }
-                    .apply { message shouldBe "Object contains no value" }
+            doc["null value"]() shouldBe null
             shouldThrow<NullPointerException> { doc["unexisting"]() }
                     .apply { message shouldBe "Object contains no value" }
 
@@ -184,8 +183,8 @@ class KotONSpec : StringSpec() {
             doc.contains("float") shouldBe true
             doc.contains("boolean true") shouldBe true
             doc.contains("boolean false") shouldBe true
+            doc.contains("null value") shouldBe true
 
-            doc.contains("null value") shouldBe false
             doc.contains("unexisting") shouldBe false
 
             doc("string") shouldBe "string value"
@@ -201,14 +200,10 @@ class KotONSpec : StringSpec() {
             doc["float"]<Float>() shouldBe 3.14
             doc["boolean true"]<Boolean>() shouldBe true
             doc["boolean false"]<Boolean>() shouldBe false
-            shouldThrow<NullPointerException> { doc["null value"]<Int>() }
-                    .apply { message shouldBe "Object contains no value" }
-            shouldThrow<NullPointerException> { doc["null value"]<String>() }
-                    .apply { message shouldBe "Object contains no value" }
-            shouldThrow<NullPointerException> { doc["null value"]<Boolean>() }
-                    .apply { message shouldBe "Object contains no value" }
-            shouldThrow<NullPointerException> { doc["null value"]<Map<String, Any>>() }
-                    .apply { message shouldBe "Object contains no value" }
+            doc["null value"]<Int>() shouldBe null
+            doc["null value"]<String>() shouldBe null
+            doc["null value"]<Boolean>() shouldBe null
+            doc["null value"]<Map<String, Any>>() shouldBe null
 
             doc<String>("string") shouldBe "string value"
             doc<Int>("integer") shouldBe 42
@@ -258,8 +253,7 @@ class KotONSpec : StringSpec() {
             doc("subStruct", "subarray", "1", "intKey") shouldBe 42
             doc<Int>("subStruct", "subarray", "1", "intKey") shouldBe 42
             doc["subStruct", "subinteger"]<Int>() shouldBe 42
-            shouldThrow<NullPointerException> { doc["subStruct", "null subvalue"]() }
-                    .apply { message shouldBe "Object contains no value" }
+            doc["subStruct", "null subvalue"]() shouldBe null
 
             val expected = kotON(
                     { "stringElement" to "value of an element" },
