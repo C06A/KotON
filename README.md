@@ -3,7 +3,7 @@
 
 
 [![license](https://img.shields.io/github/license/C06A/KotON.svg)](https://github.com/C06A/KotON/blob/master/LICENSE)
-[![Download Latest](https://img.shields.io/badge/download-1.1.0-green.svg)](https://raw.githubusercontent.com/C06A/artifacts/libs-snapshot/com/helpchoice/kotlin/koton/1.0.1/koton-1.0.1.jar)
+[![Download Latest](https://img.shields.io/badge/download-1.1.7-green.svg)](https://raw.githubusercontent.com/C06A/artifacts/libs-snapshot/com/helpchoice/kotlin/koton/1.0.1/koton-1.0.1.jar)
 
 In order to use this library include in your `build.gradle.kts` file follow
 
@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    compile("com.helpchoice.kotlin:koton:1.1.6")
+    compile("com.helpchoice.kotlin:koton:1.1.7")
 }
 
 ```
@@ -24,7 +24,7 @@ dependencies {
 <dependency>
     <groupId>com.helpchoice.kotlin</groupId>
     <artifactId>koton</artifactId>
-    <version>1.1.6</version>
+    <version>1.1.7</version>
 </dependency>
 ```
 
