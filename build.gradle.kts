@@ -1,84 +1,118 @@
-buildscript {
-    ext.kotlin_version = "1.2.60"
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-        classpath("org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}")
-    }
+plugins {
+    application
+    id("io.spring.dependency-management") version "1.0.6.RELEASE"
+    id("org.jetbrains.kotlin.jvm") version "1.3.60"
+    id("org.jetbrains.kotlin.kapt") version "1.3.60"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.3.60"
+    id("com.github.johnrengelman.shadow") version "4.0.2"
 }
 
 group = "com.helpchoice.kotlin"
-version = "1.1.7"
+version = "1.1.0-SNAPSHOT"
 
-apply plugin: "java"
-apply plugin: "kotlin"
-apply plugin: "maven"
-apply plugin: 'org.jetbrains.dokka'
 
-sourceCompatibility = 1.8
+val kotlinVersion: String by project
 
 repositories {
-    jcenter()
+    mavenCentral()
+    maven("https://jcenter.bintray.com")
 }
 
-dependencies {
-    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
-
-    testCompile("junit:junit:4.12")
-
-    testCompile("io.kotlintest:kotlintest:2.0.0")
-
-}
-
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
-}
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
-}
-
-task writeNewPom {
-    group "build"
-
-    doLast {
-        pom {
-            project {
-                inceptionYear "2008"
-                licenses {
-                    license {
-                        name "The Apache Software License, Version 2.0"
-                        url "http://www.apache.org/licenses/LICENSE-2.0.txt"
-                        distribution "repo"
-                    }
-                }
-            }
-        }.writeTo("$libsDir/$project.name-${version}.pom")
+dependencyManagement {
+    imports {
+        mavenBom("io.micronaut:micronaut-bom:1.1.1")
     }
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    group "build"
+//configurations {
+//    // for dependencies that are needed for development only
+////    developmentOnly {
+////
+////    }
+//}
 
-    classifier = "sources"
-    from sourceSets.main.allSource
+dependencies {
+    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion")
+
+    testCompile("junit:junit:4.12")
+    testCompile("io.kotlintest:kotlintest:2.0.0")
+
+    testCompile("org.junit.jupiter:junit-jupiter-api")
+    testCompile("org.jetbrains.spek:spek-api:1.1.5")
+    testCompile("io.micronaut.test:micronaut-test-junit5")
+    testRuntime("org.junit.jupiter:junit-jupiter-engine")
+    testRuntime("org.jetbrains.spek:spek-junit-platform-engine:1.1.5")
 }
 
-dokka {
-    outputFormat = 'html'
-    outputDirectory = "$buildDir/dokka"
+allOpen {
+    annotation("io.micronaut.aop.Around")
 }
 
-task dokkadocJar(type: Jar, dependsOn: dokka) {
-    group "build"
+val shadowJar: ShadowJar by tasks
+shadowJar.mergeServiceFiles()
 
-    classifier = "javadoc"
-    from dokka.outputDirectory
+tasks.withType(KotlinCompile::class) {
+    kotlinOptions {
+        jvmTarget = "1.8"
+        //Will retain parameter names for Java reflection
+        javaParameters = true
+    }
 }
 
-artifacts {
-    archives sourcesJar
-    archives dokkadocJar
+val run: JavaExec by tasks
+run.apply {
+    //run.classpath += configurations.developmentOnly
+    jvmArgs("-noverify", "-XX:TieredStopAtLevel=1", "-Dcom.sun.management.jmxremote")
 }
+
+//// use JUnit 5 platform
+val test: Test by tasks
+test.apply {
+    useJUnitPlatform()
+//test.classpath += configurations.developmentOnly
+}
+
+
+
+
+//val writeNewPom: WriteNewPom by tasks
+//task writeNewPom {
+//    group "build"
+//
+//    doLast {
+//        pom {
+//            project {
+//                inceptionYear "2008"
+//                licenses {
+//                    license {
+//                        name "The Apache Software License, Version 2.0"
+//                        url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+//                        distribution "repo"
+//                    }
+//                }
+//            }
+//        }.writeTo("$libsDir/$project.name-${version}.pom")
+//    }
+//}
+//
+//task sourcesJar(type: Jar, dependsOn: classes) {
+//    group "build"
+//
+//    classifier = "sources"
+//    from sourceSets.main.allSource
+//}
+//
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    group "build"
+//
+//    classifier = "javadoc"
+//    from javadoc.destinationDir
+//}
+//
+//artifacts {
+//    archives sourcesJar
+//            archives javadocJar
+//}
