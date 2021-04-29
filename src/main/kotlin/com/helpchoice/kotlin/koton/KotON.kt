@@ -16,6 +16,46 @@ import kotlin.reflect.KClass
  * Also I added toJson() function to convert the Object into (you guessed it) JSON.
  */
 sealed class KotON<V : Any>() {
+    companion object {
+        @JvmStatic
+        fun kotON(value: Any): KotON<Any> {
+            return KotONVal(value)
+        }
+
+        /**
+         * The static DSL function to build the KotON object
+         *
+         * It builds a KotOn object initialized by provided lambda.
+         *
+         * @param init -- the lambda to initialize
+         * @return the built object
+         */
+        @JvmStatic
+        inline fun kotON(init: KotONBuilder.() -> Any): KotON<Any> {
+            val root = KotONBuilder()
+            root.init()
+            return root.build()
+        }
+
+        /**
+         * The static DSL function to build the KotON object containing the Collection
+         *
+         * It builds a KotOn objects initialized by provided lambdas and combines them into single Collection.
+         *
+         * @param bodies -- the lambdas to initialize elements in the Collection
+         * @return the built object
+         */
+        @JvmStatic
+        fun kotON(vararg bodies: KotONBuilder.() -> Unit): KotON<Any> {
+            val kotON = KotONArray()
+            bodies.forEach {
+                kotON + it
+            }
+            return kotON as KotON<Any>
+        }
+
+    }
+
     /**
      * Function to write *this* as JSON into provided @writer.
      *
@@ -261,9 +301,7 @@ private fun String.escape(): String {
             .replace("\b", "\\b")
 }
 
-fun kotON(value: Any): KotON<Any> {
-    return KotONVal(value)
-}
+fun kotON(value: Any): KotON<Any> = KotON.kotON(value)
 
 /**
  * Top-level DSL function to build the KotON object
@@ -273,11 +311,7 @@ fun kotON(value: Any): KotON<Any> {
  * @param init -- the lambda to initialize
  * @return the built object
  */
-inline fun kotON(init: KotONBuilder.() -> Any): KotON<Any> {
-    val root = KotONBuilder()
-    root.init()
-    return root.build()
-}
+inline fun kotON(init: KotONBuilder.() -> Any): KotON<Any> = KotON.kotON(init)
 
 /**
  * Top-level DSL function to build the KotON object containing the Collection
@@ -287,10 +321,4 @@ inline fun kotON(init: KotONBuilder.() -> Any): KotON<Any> {
  * @param bodies -- the lambdas to initialize elements in the Collection
  * @return the built object
  */
-fun kotON(vararg bodies: KotONBuilder.() -> Unit): KotON<Any> {
-    val kotON = KotONArray()
-    bodies.forEach {
-        kotON + it
-    }
-    return kotON as KotON<Any>
-}
+fun kotON(vararg bodies: KotONBuilder.() -> Unit): KotON<Any> = KotON.kotON(*bodies)
