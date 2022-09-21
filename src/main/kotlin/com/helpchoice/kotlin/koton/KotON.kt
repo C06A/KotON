@@ -187,6 +187,7 @@ private data class KotONVal<V : Any>(val value: V? = null) : KotON<V>() {
                     is Map<*, *> -> "${value.map { (key, vlue) ->
                         "\"$key\": ${KotONVal(vlue).toJson()}"
                     }.joinToString(",$separator$increment", "$separator{", "$separator}")}"
+                    is KJson<*> -> value.toJson(separator, increment)
                     else -> value.toString()
                 })
         return writer
